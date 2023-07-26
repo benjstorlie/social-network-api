@@ -1,0 +1,26 @@
+{
+  "name": "socia-media-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "watch": "nodemon server.js"
+  },
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:benjstorlie/social-media-api.git"
+  },
+  "author":"Ben Storlie <benjstorlie@gmail.com> (https://benjstorlie.github.io/)",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^7.0.2",
+    "dayjs": "^1.11.9"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.9"
+  }
+}
