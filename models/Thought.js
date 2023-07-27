@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const dayjs = require('dayjs');
 
 function timestamp(date) {
-  return dayjs(date).format("[at] h:mm a [on] D MMM YYYY");
+  return dayjs(date).format("h:mma [on] D MMM YYYY");
 }
 
 // Schemas define the shape of the documents within the collection.
