@@ -21,6 +21,8 @@ router
   .delete(removeFriend);
 
 
+module.exports = router;  
+
 // JSDoc Documentation Suggestion [https://stackoverflow.com/a/65108929]
 // Install `@types/express` with `npm install --save-dev @types/express`.
 // Use custom @typedef to document req.query or req.params

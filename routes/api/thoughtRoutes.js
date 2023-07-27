@@ -5,7 +5,7 @@ const { Thought } = require('../../models');
 router
   .route('/')
   .get(getThoughts)
-  .thought(createThought);
+  .post(createThought);
 
 // /api/thought/:thoughtId
 router
@@ -17,12 +17,14 @@ router
 // /api/thoughts/:thoughtId/reactions
 router
   .route('/:thoughtId/reactions')
-  .thought(addReaction);
+  .post(addReaction);
 
 // /api/thoughts/:thoughtId/reactions/:reactionId
 router
   .route('/:thoughtId/reactions/:reactionId')
   .delete(removeReaction);
+
+module.exports = router;
 
 
 // JSDoc Documentation Suggestion [https://stackoverflow.com/a/65108929]
