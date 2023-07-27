@@ -1,6 +1,30 @@
 const router = require('express').Router();
 const { User, Thought } = require('../models');
 
+// /api/thoughts
+router
+  .route('/')
+  .get(getThoughts)
+  .thought(createThought);
+
+// /api/thought/:thoughtId
+router
+  .route('/:thoughtId')
+  .get(getSingleThought)
+  .put(updateThought)
+  .delete(deleteThought);
+
+// /api/thoughts/:thoughtId/reactions
+router
+  .route('/:thoughtId/reactions')
+  .thought(addReaction);
+
+// /api/thoughts/:thoughtId/reactions/:reactionId
+router
+  .route('/:thoughtId/reactions/:reactionId')
+  .delete(removeReaction);
+
+
 // JSDoc Documentation Suggestion [https://stackoverflow.com/a/65108929]
 // Install `@types/express` with `npm install --save-dev @types/express`.
 // Use custom @typedef to document req.query or req.params
@@ -22,8 +46,8 @@ const { User, Thought } = require('../models');
  * ```
  * @typedef ThoughtBody
  * @prop {String} thoughtText - text of the thought, 280 characters max
- * @prop {String} username - username of the posting user
- * @prop {String} userId - id of the posting user
+ * @prop {String} username - username of the thoughting user
+ * @prop {String} userId - id of the thoughting user
 */
 
 /**
@@ -43,13 +67,14 @@ async function getThoughts(req,res) {
     const thoughts = await Thought.find();
     res.json(thoughts);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
 
 /**
  * '/api/thoughts'
- * POST to create a new thought (don't forget to push the created thought's _id to the associated user's thoughts array field)
+ * THOUGHT to create a new thought (don't forget to push the created thought's _id to the associated user's thoughts array field)
  * @param {import('express').Request< {}, {}, ThoughtBody, {} >} req - request, with body with thought data.
  * @param {import('express').Response} res - response
  */
@@ -58,6 +83,7 @@ async function createThought(req, res) {
     const thought = await Thought.create(req.body);
     res.json(thought);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -73,12 +99,11 @@ async function getSingleThought(req, res) {
     const thought = await Thought.findOne({ _id: req.params.thoughtId })
       .select('-__v');
 
-    if (!thought) {
-      return res.status(404).json({ message: 'No thought with that ID' });
-    }
-
-    res.json(thought);
+    !thought
+      ? res.status(404).json({ message: 'No thought with that ID' })
+      : res.json(thought);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -94,6 +119,7 @@ async function updateThought(req, res) {
     const thought = await Thought.create(req.body);
     res.json(thought);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -108,10 +134,11 @@ async function deleteThought(req, res) {
   try {
     const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
 
-    if (!thought) {
-      return res.status(404).json({ message: 'No thought with that ID' });
-    }
+    !thought
+      ? res.status(404).json({ message: 'No thought with that ID' })
+      : res.json(thought);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -119,7 +146,7 @@ async function deleteThought(req, res) {
 
 /**
  * '/api/thoughts/:thoughtId/reactions/'
- * POST to create a reaction stored in a single thought's reactions array field
+ * THOUGHT to create a reaction stored in a single thought's reactions array field
  * @param {import('express').Request< ThoughtParams, {}, ReactionBody, {} >} req - request, with parameter thoughtId, and body with reaction data
  * @param {import('express').Response} res - response
  */
@@ -133,24 +160,24 @@ async function addReaction(req, res) {
 
     // How to validate whether the user associated with the reaction is real?
 
-    if (!thought) {
-      return res.status(404).json({ message: 'No thought with that ID' });
-    }
-
-    res.json(thought);
+    !thought
+      ? res.status(404).json({ message: 'No thought with that ID' })
+      : res.json(thought);
+      
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
 
 
 /**
- * '/api/thoughts/:thoughtId/reactions/:reactionId'
+ * '/api/thoughts/:thoughtId/reactions/:reactionId' 
  * DELETE to pull and remove a reaction by the reaction's reactionId value
  * @param {import('express').Request< ThoughtParams, {}, {}, {} >} req - request, with parameters thoughtId and reactionId
  * @param {import('express').Response} res - response
  */
-async function deleteReaction(req, res) {
+async function removeReaction(req, res) {
   try {
     const thought = await Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
@@ -158,12 +185,13 @@ async function deleteReaction(req, res) {
       { runValidators: true, new: true }  
     );
 
-    if (!thought) {
-      return res.status(404).json({ message: 'No thought with that ID' });
-    }
+    // need to check if the reactionId is real
 
-    res.json(thought);
+    !thought
+      ? res.status(404).json({ message: 'No thought with that ID' })
+      : res.json(thought);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }

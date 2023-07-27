@@ -1,6 +1,26 @@
 const router = require('express').Router();
 const { User, Thought } = require('../models');
 
+// /api/users
+router
+  .route('/')
+  .get(getUsers)
+  .post(createUser);
+
+// /api/users/:userId
+router
+  .route('/:userId')
+  .get(getSingleUser)
+  .put(updateUser)
+  .delete(deleteUser);
+
+// /api/users/:userId/friends/:friendId
+router
+  .route('/:userId/friends/:friendId')
+  .post(addFriend)
+  .delete(removeFriend);
+
+
 // JSDoc Documentation Suggestion [https://stackoverflow.com/a/65108929]
 // Install `@types/express` with `npm install --save-dev @types/express`.
 // Use custom @typedef to document req.query or req.params
@@ -35,6 +55,7 @@ async function getUsers(req,res) {
     const users = await User.find();
     res.json(users);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -50,6 +71,7 @@ async function createUser(req, res) {
     const user = await User.create(req.body);
     res.json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -63,14 +85,13 @@ async function createUser(req, res) {
 async function getSingleUser(req, res) {
   try {
     const user = await User.findOne({ _id: req.params.userId })
-      .select('-__v');
+      .select('-__v');   // What does '-__v' mean?
 
-    if (!user) {
-      return res.status(404).json({ message: 'No user with that ID' });
-    }
-
-    res.json(user);
+    !user
+      ? res.status(404).json({ message: 'No user with that ID' })
+      : res.json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -86,6 +107,7 @@ async function updateUser(req, res) {
     const user = await User.create(req.body);
     res.json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -102,12 +124,14 @@ async function deleteUser(req, res) {
     const user = await User.findOneAndDelete({ _id: req.params.userId });
 
     if (!user) {
-      return res.status(404).json({ message: 'No user with that ID' });
+      res.status(404).json({ message: 'No user with that ID' });
+    } else {
+      await Thought.deleteMany({ _id: { $in: user.thoughts } });
+      res.json({ message: 'User and associated thoughts deleted!' })
     }
 
-    await Thought.deleteMany({ _id: { $in: user.thoughts } });
-    res.json({ message: 'User and associated thoughts deleted!' })
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -129,12 +153,11 @@ async function addFriend(req, res) {
 
     // Do I need runValidators?  I need something to check if the friend is a real user.
 
-    if (!user) {
-      return res.status(404).json({ message: 'No user with that ID' });
-    }
-
-    res.json(user);
+    !user
+      ? res.status(404).json({ message: 'No user with that ID' })
+      : res.json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
@@ -146,7 +169,7 @@ async function addFriend(req, res) {
  * @param {import('express').Request< UserParams, {}, {}, {} >} req - request, with parameters userId and friendId
  * @param {import('express').Response} res - response
  */
-async function addFriend(req, res) {
+async function removeFriend(req, res) {
   try {
     const user = await User.findOneAndUpdate(
       { _id: req.params.userId },
@@ -156,12 +179,11 @@ async function addFriend(req, res) {
 
     // Do I need runValidators?  I need something to check if the friend is a real user.
 
-    if (!user) {
-      return res.status(404).json({ message: 'No user with that ID' });
-    }
-
-    res.json(user);
+    !user
+      ? res.status(404).json({ message: 'No user with that ID' })
+      : res.json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
