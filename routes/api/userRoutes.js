@@ -7,11 +7,13 @@ const { User, Thought } = require('../models');
 
 /**
  * @typedef UserParams
- * @prop {Number} userId - the user's id number
- * @prop {Number} [friendId] - the id number of the user's friend to add or delete
+ * @prop {String} userId - the user's id number
+ * @prop {String} [friendId] - the id number of the user's friend to add or delete
 */
 
 /**
+ * example data
+ * `{ "username": "lernantino", "email": "lernantino@gmail.com" }`
  * @typedef UserBody
  * @prop {String} username - the new/updated username
  * @prop {String} email - the new/updated email
