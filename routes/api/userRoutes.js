@@ -89,6 +89,29 @@ async function createUser(req, res) {
   }
 }
 
+// email error
+// {
+//   "errors": {
+//     "email": {
+//       "name": "ValidatorError",
+//       "message": "Path `email` is invalid (greg@greg).",
+//       "properties": {
+//         "message": "Path `email` is invalid (greg@greg).",
+//         "type": "regexp",
+//         "regexp": {},
+//         "path": "email",
+//         "value": "greg@greg"
+//       },
+//       "kind": "regexp",
+//       "path": "email",
+//       "value": "greg@greg"
+//     }
+//   },
+//   "_message": "user validation failed",
+//   "name": "ValidationError",
+//   "message": "user validation failed: email: Path `email` is invalid (greg@greg)."
+// }  ** This last message will also include username validation error too.
+
 /**
  * '/api/users/:userId'
  * GET a single user by its _id and populated thought and friend data
@@ -117,7 +140,11 @@ async function getSingleUser(req, res) {
  */
 async function updateUser(req, res) {
   try {
-    const user = await User.create(req.body);
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { }, // what goes here??
+      //{ runValidators: true, new: true }  
+    );
     res.json(user);
   } catch (err) {
     console.log(err);
@@ -166,6 +193,34 @@ async function addFriend(req, res) {
 
     // Do I need runValidators?  I need something to check if the friend is a real user.
       // An error gets thrown if the user id, or the friend id, doesn't exist.  Need to move those custom error messages to the "catch" block.
+    // What if they're already friends?
+
+      // friend doesn't exist
+      // {
+      //   "stringValue": "\"64c1f00dbb777aeee4536\"",
+      //   "valueType": "string",
+      //   "kind": "ObjectId",
+      //   "value": "64c1f00dbb777aeee4536",
+      //   "path": "friends",
+      //   "reason": {},
+      //   "name": "CastError",
+      //   "message": "Cast to ObjectId failed for value \"64c1f00dbb777aeee4536\" (type string) at path \"friends\" because of \"BSONError\""
+      // }
+
+      // user doesn't exist 
+
+      // {
+      //   "stringValue": "\"64c1efcbbb777aeee4669e\"",
+      //   "valueType": "string",
+      //   "kind": "ObjectId",
+      //   "value": "64c1efcbbb777aeee4669e",
+      //   "path": "_id",
+      //   "reason": {},
+      //   "name": "CastError",
+      //   "message": "Cast to ObjectId failed for value \"64c1efcbbb777aeee4669e\" (type string) at path \"_id\" for model \"user\""
+      // }
+
+
     !user
       ? res.status(404).json({ message: 'No user with that ID' })
       : res.json(user);
@@ -190,7 +245,7 @@ async function removeFriend(req, res) {
       { runValidators: true, new: true }  
     );
 
-    // Do I need runValidators?  I need something to check if the friend is a real user.
+    // Do I need runValidators?  I need to check if the friend was in their friends list in the first place.
 
     !user
       ? res.status(404).json({ message: 'No user with that ID' })
