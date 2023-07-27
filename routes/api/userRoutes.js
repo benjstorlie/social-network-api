@@ -8,12 +8,7 @@ const { User, Thought } = require('../models');
 /**
  * @typedef UserParams
  * @prop {Number} userId - the user's id number
-*/
-
-/**
- * @typedef UserFriendParams
- * @prop {Number} userId - the user's id number
- * @prop {Number} friendId - the id number of the user's friend to add or delete
+ * @prop {Number} [friendId] - the id number of the user's friend to add or delete
 */
 
 /**
@@ -114,7 +109,7 @@ async function deleteUser(req, res) {
 /**
  * '/api/users/:userId/friends/:friendId'
  * POST to add a new friend to a user's friend list
- * @param {import('express').Request< UserFriendParams, {}, {}, {} >} req - request, with parameters userId and friendId
+ * @param {import('express').Request< UserParams, {}, {}, {} >} req - request, with parameters userId and friendId
  * @param {import('express').Response} res - response
  */
 async function addFriend(req, res) {
@@ -141,7 +136,7 @@ async function addFriend(req, res) {
 /**
  * '/api/users/:userId/friends/:friendId'
  * DELETE to remove a friend from a user's friend list
- * @param {import('express').Request< UserFriendParams, {}, {}, {} >} req - request, with parameters userId and friendId
+ * @param {import('express').Request< UserParams, {}, {}, {} >} req - request, with parameters userId and friendId
  * @param {import('express').Response} res - response
  */
 async function addFriend(req, res) {
