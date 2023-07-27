@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User, Thought } = require('../models');
+const { User, Thought } = require('../../models');
 
 // /api/users
 router
@@ -68,6 +68,9 @@ async function getUsers(req,res) {
  */
 async function createUser(req, res) {
   try {
+    /**
+     * @type {import('mongoose').Document}
+     */
     const user = await User.create(req.body);
     res.json(user);
   } catch (err) {
