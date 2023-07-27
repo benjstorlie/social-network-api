@@ -165,7 +165,7 @@ async function addFriend(req, res) {
     );
 
     // Do I need runValidators?  I need something to check if the friend is a real user.
-
+      // An error gets thrown if the user id, or the friend id, doesn't exist.  Need to move those custom error messages to the "catch" block.
     !user
       ? res.status(404).json({ message: 'No user with that ID' })
       : res.json(user);
