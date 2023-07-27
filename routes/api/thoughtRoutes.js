@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Thought } = require('../../models');
+const { User, Thought } = require('../../models');
 
 // /api/thoughts
 router
@@ -43,7 +43,7 @@ module.exports = router;
  * { 
  *   "thoughtText": "Here's a cool thought...", 
  *   "username": "lernantino", 
- *   "userId": "5edff358a0fcb779aa7b118b" 
+ *   "userId": "64c1d12bfe7308f4c1af95f6" 
  * }
  * ```
  * @typedef ThoughtBody
@@ -83,7 +83,16 @@ async function getThoughts(req,res) {
 async function createThought(req, res) {
   try {
     const thought = await Thought.create(req.body);
-    res.json(thought);
+    const user = User.findOneAndUpdate(
+      { _id: req.body.userId },
+      { $addToSet: { thoughts: thought._id } },
+      { new: true }
+    );
+    !user
+      ? res
+        .status(404)
+        .json({ message: 'Thought created, but found no user with that ID', ...thought })
+      : res.status(201).json(thought);
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -118,7 +127,9 @@ async function getSingleThought(req, res) {
  */
 async function updateThought(req, res) {
   try {
-    const thought = await Thought.create(req.body);
+    const thought = await Thought.findOneAndUpdate(
+      {_id: req.params.thoughtId },
+    );
     res.json(thought);
   } catch (err) {
     console.log(err);
