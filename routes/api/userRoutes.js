@@ -72,35 +72,14 @@ async function createUser(req, res) {
   try {
     const user = await User.create(req.body);
 
-// Duplicate error response    
-//  Checks username first.  If username is okay, then the error will be for the email.
-// {
-//   "index": 0,
-//   "code": 11000,
-//   "keyPattern": {
-//     "username": 1
-//   },
-//   "keyValue": {
-//     "username": "lernantino"
-//   }
-// }
-
-    if (user.code === 11000 ) {
-      if (user.keyPattern.username) {
-        return res.json({message: `username ${user.keyValue.username} already in use`})
-      } else if (user.keyPattern.email) {
-        return res.json({message: `email ${user.keyValue.email} already in use`})
-      }
-    }
-
-    res.json(user);
+    res.status(201).json(user);
   } catch (err) {
     console.log(err);
     if (err.code === 11000 ) {
       if (err.keyPattern.username) {
-        res.status(500).json({message: `username ${err.keyValue.username} already in use`})
+        res.status(409).json({message: `username ${err.keyValue.username} already in use`})
       } else if (err.keyPattern.email) {
-        res.status(500).json({message: `email ${err.keyValue.email} already in use`})
+        res.status(409).json({message: `email ${err.keyValue.email} already in use`})
       } else {
         res.status(500).json(err);
       }
