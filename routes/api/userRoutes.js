@@ -13,7 +13,12 @@ const { User, Thought } = require('../models');
 
 /**
  * example data
- * `{ "username": "lernantino", "email": "lernantino@gmail.com" }`
+ * ```
+ * {
+ *   "username": "lernantino",
+ *   "email": "lernantino@gmail.com"
+ * }
+ * ```
  * @typedef UserBody
  * @prop {String} username - the new/updated username
  * @prop {String} email - the new/updated email
