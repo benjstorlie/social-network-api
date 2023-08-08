@@ -61,8 +61,10 @@ module.exports = router;
 /**
  * '/api/thoughts'
  * GET all thoughts
+ * @async
  * @param {import('express').Request} req - request, no req.body nor req.params
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function getThoughts(req,res) {
   try {
@@ -77,21 +79,23 @@ async function getThoughts(req,res) {
 /**
  * '/api/thoughts'
  * THOUGHT to create a new thought (don't forget to push the created thought's _id to the associated user's thoughts array field)
+ * @async
  * @param {import('express').Request< {}, {}, ThoughtBody, {} >} req - request, with body with thought data.
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function createThought(req, res) {
   try {
     const thought = await Thought.create(req.body);
     const user = await User.findOneAndUpdate(
-      { _id: req.body.userId },
+      { _id: req.body.userId, username:req.body.username },
       { $addToSet: { thoughts: thought._id } },
       { new: true }
     );
     !user
       ? res
         .status(404)
-        .json({ message: 'Thought created, but found no user with that ID', ...thought })
+        .json({ message: 'Thought created, but found no user with that ID and username', ...thought._doc })
       : res.status(201).json(thought);
   } catch (err) {
     console.log(err);
@@ -102,8 +106,10 @@ async function createThought(req, res) {
 /**
  * '/api/thoughts/:thoughtId'
  * GET a single thought by its _id
+ * @async
  * @param {import('express').Request< ThoughtParams, {}, {}, {} >} req - request, with parameter thoughtId
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function getSingleThought(req, res) {
   try {
@@ -122,8 +128,10 @@ async function getSingleThought(req, res) {
 /**
  * '/api/thoughts/:thoughtId'
  * PUT to update a thought by its _id
+ * @async
  * @param {import('express').Request< ThoughtParams, {}, ThoughtBody, {} >} req - request, with parameter thoughtId, and body with thought data.
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function updateThought(req, res) {
   try {
@@ -140,16 +148,18 @@ async function updateThought(req, res) {
 /**
  * '/api/thoughts/:thoughtId'
  * DELETE to remove thought by its _id
+ * @async
  * @param {import('express').Request< ThoughtParams, {}, {}, {} >} req - request, with parameter thoughtId
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function deleteThought(req, res) {
   try {
     const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
 
     !thought
-      ? res.status(404).json({ message: 'No thought with that ID' })
-      : res.json(thought);
+      ? res.status(404).json({ error: 'No thought with that ID' })
+      : res.json({ message: 'Successfully deleted' });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -160,14 +170,16 @@ async function deleteThought(req, res) {
 /**
  * '/api/thoughts/:thoughtId/reactions/'
  * THOUGHT to create a reaction stored in a single thought's reactions array field
+ * @async
  * @param {import('express').Request< ThoughtParams, {}, ReactionBody, {} >} req - request, with parameter thoughtId, and body with reaction data
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function addReaction(req, res) {
   try {
     const thought = await Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
-      { $addToSet: { reactions: req.body.reactionText } },
+      { $addToSet: { reactions: req.body } },
       { runValidators: true, new: true }  
     );
 
@@ -187,8 +199,10 @@ async function addReaction(req, res) {
 /**
  * '/api/thoughts/:thoughtId/reactions/:reactionId' 
  * DELETE to pull and remove a reaction by the reaction's reactionId value
+ * @async
  * @param {import('express').Request< ThoughtParams, {}, {}, {} >} req - request, with parameters thoughtId and reactionId
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function removeReaction(req, res) {
   try {

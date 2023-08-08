@@ -49,8 +49,10 @@ module.exports = router;
 /**
  * '/api/users'
  * GET all users
+ * @async
  * @param {import('express').Request} req - request, no req.body nor req.params
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function getUsers(req,res) {
   try {
@@ -65,8 +67,10 @@ async function getUsers(req,res) {
 /**
  * '/api/users'
  * POST a new user
+ * @async
  * @param {import('express').Request< {}, {}, UserBody, {} >} req - request, with body with user data.
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function createUser(req, res) {
   try {
@@ -115,8 +119,10 @@ async function createUser(req, res) {
 /**
  * '/api/users/:userId'
  * GET a single user by its _id and populated thought and friend data
+ * @async
  * @param {import('express').Request< UserParams, {}, {}, {} >} req - request, with parameter userId
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function getSingleUser(req, res) {
   try {
@@ -135,8 +141,10 @@ async function getSingleUser(req, res) {
 /**
  * '/api/users/:userId'
  * PUT to update a user by its _id
+ * @async
  * @param {import('express').Request< UserParams, {}, UserBody, {} >} req - request, with parameter userId, and body with user data.
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function updateUser(req, res) {
   try {
@@ -156,8 +164,10 @@ async function updateUser(req, res) {
  * '/api/users/:userId'
  * DELETE to remove user by its _id
  * BONUS: Remove a user's associated thoughts when deleted.
+ * @async
  * @param {import('express').Request< UserParams, {}, {}, {} >} req - request, with parameter userId
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function deleteUser(req, res) {
   try {
@@ -180,8 +190,10 @@ async function deleteUser(req, res) {
 /**
  * '/api/users/:userId/friends/:friendId'
  * POST to add a new friend to a user's friend list
+ * @async
  * @param {import('express').Request< UserParams, {}, {}, {} >} req - request, with parameters userId and friendId
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function addFriend(req, res) {
   try {
@@ -234,8 +246,10 @@ async function addFriend(req, res) {
 /**
  * '/api/users/:userId/friends/:friendId'
  * DELETE to remove a friend from a user's friend list
+ * @async
  * @param {import('express').Request< UserParams, {}, {}, {} >} req - request, with parameters userId and friendId
  * @param {import('express').Response} res - response
+ * @returns {Promise<Void>}
  */
 async function removeFriend(req, res) {
   try {
