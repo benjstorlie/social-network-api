@@ -150,8 +150,11 @@ async function updateUser(req, res) {
   try {
     const user = await User.findOneAndUpdate(
       { _id: req.params.userId },
-      { }, // what goes here??
-      //{ runValidators: true, new: true }  
+      {
+        email: req.body.email,
+        username: req.body.username 
+      },
+      { runValidators: true, new: true }  
     );
     res.json(user);
   } catch (err) {
@@ -175,9 +178,30 @@ async function deleteUser(req, res) {
 
     if (!user) {
       res.status(404).json({ message: 'No user with that ID' });
+      return;
     } else {
-      await Thought.deleteMany({ _id: { $in: user.thoughts } });
-      res.json({ message: 'User and associated thoughts deleted!' })
+      let errors = [];
+
+      try {
+        await User.updateMany(
+          { },
+          { $pull: { friends: req.params.userId } }
+        );
+      } catch {
+        errors.push('Unable to remove user from friends lists.')
+      }
+
+      try {
+        await Thought.deleteMany({ _id: { $in: user.thoughts } });
+        
+      } catch {
+        errors.push("Unable to remove users' associated thoughts.")
+      }
+      if (errors.length) {
+        res.status(500).json({message: 'User deleted, but some errors occured.', errors})
+      } else {
+        res.json({ message: 'User and associated thoughts deleted!' })
+      }
     }
 
   } catch (err) {
@@ -255,7 +279,7 @@ async function removeFriend(req, res) {
   try {
     const user = await User.findOneAndUpdate(
       { _id: req.params.userId },
-      { $addToSet: { friends: req.params.friendId } },
+      { $pull: { friends: req.params.friendId } },
       { runValidators: true, new: true }  
     );
 
