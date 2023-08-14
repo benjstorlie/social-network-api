@@ -128,6 +128,7 @@ async function getSingleThought(req, res) {
 /**
  * '/api/thoughts/:thoughtId'
  * PUT to update a thought by its _id
+ * It only makes sense for the thoughtText field to update, since it should only be the same user doing the updating.
  * @async
  * @param {import('express').Request< ThoughtParams, {}, ThoughtBody, {} >} req - request, with parameter thoughtId, and body with thought data.
  * @param {import('express').Response} res - response
@@ -136,7 +137,9 @@ async function getSingleThought(req, res) {
 async function updateThought(req, res) {
   try {
     const thought = await Thought.findOneAndUpdate(
-      {_id: req.params.thoughtId },
+      { _id: req.params.thoughtId },
+      { thoughtText: req.body.thoughtText },
+      { runValidators: true, new: true }
     );
     res.json(thought);
   } catch (err) {
@@ -208,7 +211,7 @@ async function removeReaction(req, res) {
   try {
     const thought = await Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
-      { $addToSet: { reactions: req.params.reactionId } },
+      { $pull: { reactions: req.params.reactionId } },
       { runValidators: true, new: true }  
     );
 
