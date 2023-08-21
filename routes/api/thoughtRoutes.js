@@ -160,9 +160,25 @@ async function deleteThought(req, res) {
   try {
     const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
 
-    !thought
-      ? res.status(404).json({ error: 'No thought with that ID' })
-      : res.json({ message: 'Successfully deleted' });
+    if (thought) {
+      try {
+        await User.updateMany(
+          { },
+          { $pull: { thoughts: req.params.thoughtId } }
+        );
+        res.json({message: 'Successfully deleted.'})
+      } catch {
+        res.status(500).json({message: "Deleted thought, but unable to pull the thoughtId from users' thought lists."});
+        return;
+      }
+    } else {
+      // Go ahead and delete the id from user's lists in case it's still there.
+      await User.updateMany(
+        { },
+        { $pull: { thoughts: req.params.thoughtId } }
+      );
+      res.status(404).json({ error: 'No thought with that ID' })
+    }
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -211,8 +227,8 @@ async function removeReaction(req, res) {
   try {
     const thought = await Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
-      { $pull: { reactions: req.params.reactionId } },
-      { runValidators: true, new: true }  
+      { $pull: { reactions: {reactionId: req.params.reactionId} } },
+      { new: true }  
     );
 
     // need to check if the reactionId is real

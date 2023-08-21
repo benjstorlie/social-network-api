@@ -127,8 +127,9 @@ async function createUser(req, res) {
 async function getSingleUser(req, res) {
   try {
     const user = await User.findOne({ _id: req.params.userId })
-      .select('-__v');   // What does '-__v' mean?
-
+      .select('-__v')   // What does '-__v' mean?
+      .populate('friends')
+      .populate('thoughts');
     !user
       ? res.status(404).json({ message: 'No user with that ID' })
       : res.json(user);
@@ -150,10 +151,7 @@ async function updateUser(req, res) {
   try {
     const user = await User.findOneAndUpdate(
       { _id: req.params.userId },
-      {
-        email: req.body.email,
-        username: req.body.username 
-      },
+      req.body,
       { runValidators: true, new: true }  
     );
     res.json(user);
@@ -214,6 +212,7 @@ async function deleteUser(req, res) {
 /**
  * '/api/users/:userId/friends/:friendId'
  * POST to add a new friend to a user's friend list
+ * "Friend" will be a one-way relationship -- like following.
  * @async
  * @param {import('express').Request< UserParams, {}, {}, {} >} req - request, with parameters userId and friendId
  * @param {import('express').Response} res - response
